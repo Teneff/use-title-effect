@@ -1,46 +1,117 @@
-# Getting Started with Create React App
+# @teneff/use-title-effect
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> React hook for changing document.title
+> 
+> [![NPM version][npm-img-latest]][npm-url]
+> [![Build Status][build-img]][build-url]
+> [![Coverage Status][coverage-image]][coverage-url]
+> [![GitHub issues][issues-image]][issues-url]
+> [![GitHub stars][github-stars-img]][github-stars-url]
 
-## Available Scripts
+## Installation
 
-In the project directory, you can run:
+```sh
+yarn add @teneff/use-title-effect
+```
 
-### `yarn start`
+## Preview
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+![Preview](./assets/use-title-effect.gif)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Usage
 
-### `yarn test`
+```tsx
+import useTitleEffect from '@teneff/use-title-effect'
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+function App() {
 
-### `yarn build`
+  useTitleEffect('React App Title', {
+    messages: ['message 1', 'message 2']
+  });
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+  return (
+    <div className="App">
+     React App Here
+    </div>
+  );
+}
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### ℹ️ Consider using the hook in the outer components like App
+> Version 1.0.0 does not revert the original title of the page once the component is unmounted
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Options
 
-### `yarn eject`
+### `options.title: string` (default: **""**)
+Title is used to provide a permanent page title and it's also provided to the formatter to be enchanced
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### `options.formatter:` [Formatter&lt;T&gt;](./src/types/Formatter.ts) (default: see [formatter/message](./src/formatter/message.ts))
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Formatter is functino accepting object with title and messages and returning array of strings, which are rotated in the given duration
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### `options.duration: number` (default: **800**)
+Time in milliseconds to switch between the different messages resulted from the formatter
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### Usage with custom message format
 
-## Learn More
+```tsx
+  import formatters, { Formatter } from './formatter';
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+  const messages = [
+    {
+      message: 'Hello!',
+      author: {
+        name: 'John Doe'
+      }
+    },
+    {
+      message: 'Hey!',
+      author: {
+        name: 'Jane Doe'
+      }
+    },
+    {
+      message: 'U there?',
+      author: {
+        name: 'John Doe'
+      }
+    },
+  ]
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+  useTitleEffect(
+    "My awesome app",
+    {
+      messages,
+      // reusing the default formatter
+      formatter: ({ title, messages }) => formatters.message({
+      title,
+      messages: messages.map(message => message.author.name)
+    })
+  })
+
+  useTitleEffect(
+    "My awesome app",
+    {
+      messages,
+      // custom formatter
+      formatter: ({ title, messages }) => {
+        const uniqueAuthors = new Set(messages.map(message => message.author.name))
+        return messages.length ? [
+          `(${messages.length}) ${title}`,
+          `(${messages.length}) You've got messages from ${Array.from(uniqueAuthors).length} contacts`
+        ] : [title]
+      }
+    });
+```
+
+[npm-img-latest]: https://img.shields.io/npm/v/@teneff/use-title-effect/latest.svg?logo=npm&style=flat
+[npm-img-next]: https://img.shields.io/npm/v/@teneff/use-title-effect/next.svg?logo=npm&style=flat
+[npm-url]: https://www.npmjs.com/package/@teneff/use-title-effect
+[build-img]: https://github.com/teneff/use-title-effect/actions/workflows/build.yml/badge.svg?branch=master
+[build-url]: https://github.com/teneff/use-title-effect/actions?query=branch%3Amaster
+[coverage-image]: https://img.shields.io/codecov/c/github/Teneff/use-title-effect/master.svg?logo=codecov&style=flat
+[coverage-url]: https://codecov.io/gh/Teneff/use-title-effect/branch/master
+[issues-image]: https://img.shields.io/github/issues/Teneff/use-title-effect/bug.svg?logo=github&style=flat
+[issues-url]: https://github.com/teneff/use-title-effect/issues
+[github-stars-img]: https://img.shields.io/github/stars/teneff/use-title-effect.svg?logo=github&logoColor=fff
+[github-stars-url]: https://github.com/teneff/use-title-effect/stargazers
